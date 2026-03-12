@@ -1,5 +1,5 @@
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Path, Query
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -63,7 +63,7 @@ async def get_all_books():
     
 # GET book by id
 @app.get("/books/id/{id}")
-async def get_book_by_id(id: int):
+async def get_book_by_id(id: int = Path(gt=0)):
     try:
         for book in BOOKS:
             if book.id == id:
@@ -73,8 +73,8 @@ async def get_book_by_id(id: int):
         return {"error": str(e)}
     
 # GET book by rating
-@app.get("/books/rating/{rating}")
-async def get_book_by_rating(rating: int):
+@app.get("/books/rating/")
+async def get_book_by_rating(rating: int = Query(ge=0, le=6)):
     books_founded = []
     try:
         for book in BOOKS:
@@ -85,8 +85,8 @@ async def get_book_by_rating(rating: int):
         return {"message": str(e)}
 
 #GET book by published year
-@app.get("/books/publish/{published_year}")
-async def get_book_by_year(published_year: int):
+@app.get("/books/publish/")
+async def get_book_by_year(published_year: int = Query(ge=1200, le=2027)):
     books_founded = []
     try:
         for book in BOOKS:
@@ -123,7 +123,7 @@ async def update_book(book: BookRequest):
     
 # DELETE book with DELETE request
 @app.delete("/books/deletebook/{book_id}")
-async def delete_book(book_id: int):
+async def delete_book(book_id: int = Path(gt=0)):
     try:
         for i in range(len(BOOKS)):
             if book_id == BOOKS[i].id:
