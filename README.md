@@ -51,11 +51,11 @@ REST API to manage a collection of books using FastAPI.
 ## Main Endpoints
 
 | Method | Endpoint                        | Description                      |
-|--------|----------------------------------|----------------------------------|
+|--------|---------------------------------|----------------------------------|
 | GET    | `/books`                        | List all books                   |
 | GET    | `/books/id/{id}`                | Get book by ID                   |
-| GET    | `/books/rating/{rating}`        | Get books by rating              |
-| GET    | `/books/publish/{published_year}` | Get books by published year      |
+| GET    | `/books/rating/`                | Get books by rating              |
+| GET    | `/books/publish/`               | Get books by published year      |
 | POST   | `/books/createbook`             | Create a new book                |
 | PUT    | `/books/updatebook`             | Update an existing book          |
 | DELETE | `/books/deletebook/{book_id}`   | Delete a book by ID              |
