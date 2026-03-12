@@ -11,13 +11,16 @@ class Book:
     author: str
     description: str
     rating: int
+    published_year: int
     
-    def __init__(self, id, title, author, description, rating):
+    def __init__(self, id, title, author, description, rating, published_year):
         self.id = id
         self.title = title
         self.author = author
         self.description = description
         self.rating = rating
+        self.published_year = published_year
+        
 
 class BookRequest(BaseModel):
     id: Optional[int] = Field(description="The ID is not needed on create", default=None)
@@ -25,6 +28,7 @@ class BookRequest(BaseModel):
     author: str = Field(min_length=5)
     description: str = Field(min_length=10)
     rating: int = Field(ge=0, le=6)
+    published_year: int = Field(ge=1200, le=2027)
     
     model_config = {
         "json_schema_extra": {
@@ -32,19 +36,20 @@ class BookRequest(BaseModel):
                 "title": "new book title",
                 "author": "new book author",
                 "description": "new book description",
-                "rating": 5
+                "rating": 5,
+                "published_year": 2020
             }
         }
     }
 
 BOOKS = [
-    Book(1, "The Great Gatsby", "F. Scott Fitzgerald", "A novel about the American dream.", 5),
-    Book(2, "To Kill a Mockingbird", "Harper Lee", "A novel about racial injustice in the Deep South.", 5),
-    Book(3, "1984", "George Orwell", "A dystopian novel about totalitarianism.", 4),
-    Book(4, "Moby Dick", "Herman Melville", "A novel about the quest for revenge against a giant white whale.", 4),
-    Book(5, "Pride and Prejudice", "Jane Austen", "A novel about love and social class in 19th century England.", 5),
-    Book(6, "The Catcher in the Rye", "J.D. Salinger", "A novel about teenage rebellion and alienation.", 4),
-    Book(7, "The Lord of the Rings", "J.R.R. Tolkien", "A fantasy novel about the quest to destroy a powerful ring.", 5),
+    Book(1, "The Great Gatsby", "F. Scott Fitzgerald", "A novel about the American dream.", 5, 2020),
+    Book(2, "To Kill a Mockingbird", "Harper Lee", "A novel about racial injustice in the Deep South.", 5, 1999),
+    Book(3, "1984", "George Orwell", "A dystopian novel about totalitarianism.", 4, 1915),
+    Book(4, "Moby Dick", "Herman Melville", "A novel about the quest for revenge against a giant white whale.", 4, 1700),
+    Book(5, "Pride and Prejudice", "Jane Austen", "A novel about love and social class in 19th century England.", 5, 2021),
+    Book(6, "The Catcher in the Rye", "J.D. Salinger", "A novel about teenage rebellion and alienation.", 4, 2022),
+    Book(7, "The Lord of the Rings", "J.R.R. Tolkien", "A fantasy novel about the quest to destroy a powerful ring.", 5, 2016),
 ]
 
 
@@ -57,7 +62,7 @@ async def get_all_books():
         return {"error": str(e)}
     
 # GET book by id
-@app.get("/books/getbookbyid/{id}")
+@app.get("/books/id/{id}")
 async def get_book_by_id(id: int):
     try:
         for book in BOOKS:
@@ -66,6 +71,33 @@ async def get_book_by_id(id: int):
         return {"error": "Book not found"}
     except Exception as e:
         return {"error": str(e)}
+    
+# GET book by rating
+@app.get("/books/rating/{rating}")
+async def get_book_by_rating(rating: int):
+    books_founded = []
+    try:
+        for book in BOOKS:
+            if book.rating == rating:
+                books_founded.append(book)
+        return books_founded
+    except Exception as e:
+        return {"message": str(e)}
+
+#GET book by published year
+@app.get("/books/publish/{published_year}")
+async def get_book_by_year(published_year: int):
+    books_founded = []
+    try:
+        for book in BOOKS:
+            if book.published_year == published_year:
+                books_founded.append(book)
+        if books_founded:
+            return books_founded
+        else:
+            return {"message": f"No books of year {published_year} found."}
+    except Exception as e:
+        return {"message": str(e)}
     
 # POST create book
 @app.post("/books/createbook")
@@ -77,6 +109,29 @@ async def add_book(book_request: BookRequest):
         return BOOKS
     except Exception as e:
         return {"error": str(e)}
+    
+# UPDATE book with PUT request
+@app.put("/books/updatebook")
+async def update_book(book: BookRequest):
+    try:
+        for i in range(len(BOOKS)):
+            if BOOKS[i].id == book.id:
+                BOOKS[i] = book
+        return BOOKS
+    except Exception as e:
+        return {"message": str(e)}
+    
+# DELETE book with DELETE request
+@app.delete("/books/deletebook/{book_id}")
+async def delete_book(book_id: int):
+    try:
+        for i in range(len(BOOKS)):
+            if book_id == BOOKS[i].id:
+                BOOKS.pop(i)
+                return {"message": f"Book with id {book_id} deleted.", "books": BOOKS}
+        return {"message": "Book not found"}
+    except Exception as e:
+        return {"message": str(e)}
     
 # Function which finds the id of the book and adds it to the book object before adding it to the list of books
 def find_book_id(book: Book):
