@@ -20,17 +20,28 @@ class Book:
         self.rating = rating
 
 class BookRequest(BaseModel):
-    id: Optional[int] = None
+    id: Optional[int] = Field(description="The ID is not needed on create", default=None)
     title: str = Field(min_length=10)
     author: str = Field(min_length=5)
     description: str = Field(min_length=10)
     rating: int = Field(ge=0, le=6)
+    
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "new book title",
+                "author": "new book author",
+                "description": "new book description",
+                "rating": 5
+            }
+        }
+    }
 
 BOOKS = [
     Book(1, "The Great Gatsby", "F. Scott Fitzgerald", "A novel about the American dream.", 5),
     Book(2, "To Kill a Mockingbird", "Harper Lee", "A novel about racial injustice in the Deep South.", 5),
     Book(3, "1984", "George Orwell", "A dystopian novel about totalitarianism.", 4),
-    Book(4, "Moby", "Herman Melville", "A novel about the quest for revenge against a giant white whale.", 4),
+    Book(4, "Moby Dick", "Herman Melville", "A novel about the quest for revenge against a giant white whale.", 4),
     Book(5, "Pride and Prejudice", "Jane Austen", "A novel about love and social class in 19th century England.", 5),
     Book(6, "The Catcher in the Rye", "J.D. Salinger", "A novel about teenage rebellion and alienation.", 4),
     Book(7, "The Lord of the Rings", "J.R.R. Tolkien", "A fantasy novel about the quest to destroy a powerful ring.", 5),
